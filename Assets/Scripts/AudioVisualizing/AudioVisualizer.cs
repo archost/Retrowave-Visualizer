@@ -16,6 +16,22 @@ public class AudioVisualizer : MonoBehaviour
 
     private float[] _bufferDecrease = new float[8];
 
+    private float[] _highestFreqBand = new float[8];
+
+    /// <summary>
+    /// Normalized frequency volume values
+    /// </summary>
+    public static float[] _audioBand = new float[8];
+
+    /// <summary>
+    /// Buffered normalized frequency volume values
+    /// </summary>
+    public static float[] _audioBandBuffer = new float[8];
+
+    public static float _amplitude, _amplitudeBuffer;
+
+    private float _highestAmplitude;
+
     void Start()
     {
         _audioSource = GetComponent<AudioSource>();
@@ -26,6 +42,8 @@ public class AudioVisualizer : MonoBehaviour
         GetSpectrumAudioSource();
         MakeFrequencyBands();
         BandBuffer();
+        CreateAudioBands();
+        GetAmplitude();
     }
 
     private void GetSpectrumAudioSource()
@@ -67,5 +85,28 @@ public class AudioVisualizer : MonoBehaviour
                 _bufferDecrease[i] *= 1.2f;
             }
         }
+    }
+
+    void CreateAudioBands()
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            _highestFreqBand[i] = Mathf.Max(_freqBand[i], _highestFreqBand[i]);
+            _audioBand[i] = Mathf.Max(0, _freqBand[i] / _highestFreqBand[i]);
+            _audioBandBuffer[i] = Mathf.Max(0, _bandBuffer[i] / _highestFreqBand[i]);
+        }
+    }
+
+    void GetAmplitude()
+    {
+        float currentAmp = 0, currentAmpBuffer = 0;
+        for (int i = 0; i < 8; i++)
+        {
+            currentAmp += _audioBand[i];
+            currentAmpBuffer += _audioBandBuffer[i];
+        }
+        _highestAmplitude = Mathf.Max(_highestAmplitude, currentAmp);
+        _amplitude = currentAmp / _highestAmplitude;
+        _amplitudeBuffer = currentAmpBuffer / _highestAmplitude;
     }
 }
