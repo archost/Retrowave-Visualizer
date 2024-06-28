@@ -9,17 +9,20 @@ public class MeshGenerator : MonoBehaviour
 {
     private Mesh _mesh;
 
-    private Vector3[] _verticies;
+    private Vector3[] _vertices;
     private int[] _triangles;
 
-    [SerializeField]
-    int _xSize;
+    private HeightmapLoader _heightmapLoader;
 
     [SerializeField]
-    int _zSize;
+    private int _xSize;
+
+    [SerializeField]
+    private int _zSize;
 
     void Start()
     {
+        _heightmapLoader = FindObjectOfType<HeightmapLoader>();
         _mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = _mesh;
         CreateShape();
@@ -28,19 +31,15 @@ public class MeshGenerator : MonoBehaviour
 
     private void CreateShape()
     {
-        _verticies = new Vector3[(_xSize + 1) * (_zSize + 1)];
+        _vertices = new Vector3[(_xSize + 1) * (_zSize + 1)];
 
         for (int z = 0, i = 0; z <= _zSize; z++)
         {
             for (int x = 0; x <= _xSize; x++)
             {
-                float y = Mathf.PerlinNoise(z * .3f, x * .3f) * 2f;
+                float y = _heightmapLoader.GetHeightAt(z, x) * 20;
 
-                Debug.Log(y);
-
-                y = y < 0.5 ? 0 : y * 3;
-
-                _verticies[i] = new Vector3(x, y, z);
+                _vertices[i] = new Vector3(x, y, z);
                 i++;
             }
         }
@@ -62,20 +61,26 @@ public class MeshGenerator : MonoBehaviour
             }
             vert++;
         }
-
-        
-
-
     }
 
     private void UpdateMesh()
     {
         _mesh.Clear();
-        _mesh.vertices = _verticies;
+        _mesh.vertices = _vertices;
         _mesh.triangles = _triangles;
         _mesh.RecalculateNormals();
+
+        Vector2[] uvs = new Vector2[_vertices.Length];
+        for (int i = 0; i < uvs.Length; i++)
+        {
+            uvs[i] = new Vector2(_vertices[i].x, _vertices[i].z);
+        }
+        _mesh.uv = uvs;
     }
 
+
+    
+    /*
     private void OnDrawGizmos()
     {
         if (_verticies == null)
@@ -86,4 +91,5 @@ public class MeshGenerator : MonoBehaviour
             Gizmos.DrawSphere(_verticies[i], .1f);
         }
     }
+    */
 }
