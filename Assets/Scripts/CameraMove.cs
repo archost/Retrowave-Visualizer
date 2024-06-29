@@ -9,6 +9,6 @@ public class CameraMove : MonoBehaviour
 
     void Update()
     {
-        transform.position += new Vector3(_speed * Time.deltaTime, 0, 0);
+        transform.position += new Vector3(_speed * Time.deltaTime + AudioVisualizer._audioBandBuffer[0] * 0.5f, 0, 0);
     }
 }
