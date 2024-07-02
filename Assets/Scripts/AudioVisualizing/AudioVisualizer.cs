@@ -81,7 +81,7 @@ public class AudioVisualizer : MonoBehaviour
             if (_freqBand[i] < _bandBuffer[i])
             {
                 _bandBuffer[i] -= _bufferDecrease[i];
-                _bufferDecrease[i] *= 1.8f;
+                _bufferDecrease[i] *= 1.4f;
             }
         }
     }
